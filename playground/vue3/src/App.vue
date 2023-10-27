@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import DefineCustomEl from './examples/define-custom-el/index.vue'
+import './examples/define-custom-el/index.vue'
 import DefineRender from './examples/define-render/index.vue'
 import DefineOptions from './examples/define-options/index.vue'
 import DefineProps from './examples/define-props/index.vue'
@@ -155,9 +155,8 @@ import Full from './examples/full.setup'
     </fieldset>
     <fieldset>
       <legend>defineCustomEl</legend>
-      <DefineCustomEl />
+      <ce-demo />
     </fieldset>
-
   </div>
 </template>
 

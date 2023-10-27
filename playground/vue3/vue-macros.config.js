@@ -33,6 +33,11 @@ export default {
       script: {
         hoistStatic: false,
       },
+      template: {
+        compilerOptions: {
+          isCustomElement: (tag) => tag.startsWith('ce'),
+        },
+      },
     }),
     vueJsx: VueJsx(),
   },

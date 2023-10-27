@@ -94,8 +94,8 @@ export interface FeatureOptionsMap {
   chainCall: OptionsChainCall
   defineEmit: OptionsDefineEmit
   defineModels: OptionsDefineModels
-  defineOptions: OptionsDefineOptions,
-  defineCustomEl: OptionsDefineCustomEl,
+  defineOptions: OptionsDefineOptions
+  defineCustomEl: OptionsDefineCustomEl
   defineProp: OptionsDefineProp
   defineProps: OptionsDefineProps
   definePropsRefs: OptionsDefinePropsRefs

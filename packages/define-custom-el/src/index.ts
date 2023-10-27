@@ -4,11 +4,12 @@ import {
   type MarkRequired,
   REGEX_SETUP_SFC,
   REGEX_VUE_SFC,
+  REGEX_VUE_SUB,
   createFilter,
-  detectVueVersion, REGEX_VUE_SUB
+  detectVueVersion,
 } from '@vue-macros/common'
 import { generatePluginName } from '#macros' assert { type: 'macro' }
-import { transformDefineRender } from './core'
+import { transformDefineCustomEl } from './core'
 
 export type Options = BaseOptions
 export type OptionsResolved = MarkRequired<Options, 'include' | 'version'>
@@ -35,9 +36,9 @@ export default createUnplugin<Options | undefined, false>(
         return filter(id)
       },
 
-      /*transform(code, id) {
-        return transformDefineRender(code, id)
-      },*/
+      transform(code, id) {
+        return transformDefineCustomEl(code, id)
+      },
     }
   }
 )

@@ -10,12 +10,13 @@ import {
 } from '@vue-macros/common'
 import type * as t from '@babel/types'
 
-export function transformDefineRender(code: string, id: string) {
+export function transformDefineCustomEl(code: string, id: string) {
   if (!code.includes(DEFINE_CUSTOM_EL)) return
-
   const lang = getLang(id)
   const program = babelParse(code, lang === 'vue' ? 'js' : lang)
 
+  let defineComponentNodes: t.CallExpression | null = null
+  let importNodes: t.ImportSpecifier | null = null
   const nodes: {
     parent: t.BlockStatement
     node: t.ExpressionStatement
@@ -23,6 +24,24 @@ export function transformDefineRender(code: string, id: string) {
   }[] = []
   walkAST<t.Node>(program, {
     enter(node, parent) {
+      if (
+        parent?.type === 'ImportDeclaration' &&
+        node.type === 'ImportSpecifier' &&
+        node.imported.type === 'Identifier' &&
+        node.imported.name === 'defineComponent' &&
+        node.local.name === '_defineComponent'
+      ) {
+        importNodes = node
+        return
+      }
+      if (
+        node.type === 'CallExpression' &&
+        node.callee.type === 'Identifier' &&
+        node.callee.name === '_defineComponent'
+      ) {
+        defineComponentNodes = node
+        return
+      }
       if (
         node.type !== 'ExpressionStatement' ||
         !isCallOf(node.expression, DEFINE_CUSTOM_EL) ||
@@ -37,28 +56,41 @@ export function transformDefineRender(code: string, id: string) {
       })
     },
   })
-  if (nodes.length === 0) return
+  if (nodes.length === 0 || !defineComponentNodes) return
 
   const s = new MagicString(code)
 
   for (const { parent, node, arg } of nodes) {
+    // check arg 'name'
+    debugger
     // check parent
-    const returnStmt = parent.body.find(
-      (node) => node.type === 'ReturnStatement'
-    )
-    if (returnStmt) s.removeNode(returnStmt)
+    // const returnStmt = parent.body.find(
+    //   (node) => node.type === 'ReturnStatement'
+    // )
+    // if (returnStmt) s.removeNode(returnStmt)
 
-    const index = returnStmt ? returnStmt.start! : parent.end! - 1
-    const shouldAddFn = !isFunctionType(arg) && arg.type !== 'Identifier'
-    s.appendLeft(index, `return ${shouldAddFn ? '() => (' : ''}`)
-    s.moveNode(arg, index)
-    if (shouldAddFn) s.appendRight(index, `)`)
+    // const index = returnStmt ? returnStmt.start! : parent.end! - 1
+    // const shouldAddFn = !isFunctionType(arg) && arg.type !== 'Identifier'
+    // s.appendLeft(index, `return ${shouldAddFn ? '() => (' : ''}`)
+    // s.moveNode(arg, index)
+    // if (shouldAddFn) s.appendRight(index, `)`)
 
     // removes `defineRender(`
     s.remove(node.start!, arg.start!)
     // removes `)`
     s.remove(arg.end!, node.end!)
   }
+
+  const defineCEFn = 'defineCustomElement'
+  // 替换导入
+  importNodes && s.overwrite(importNodes.imported.start!, importNodes?.imported.end, defineCEFn);
+  importNodes && s.overwrite(importNodes.local.start!, importNodes?.local.end, `_${defineCEFn}`);
+  // 替换 defineComponent
+  s.appendLeft((defineComponentNodes as t.CallExpression).start!, `_${defineCEFn}(`)
+  // TODO 生成 styles 和 stylesAttrs
+  s.appendRight(defineComponentNodes.end, `)`);
+  // TODO: customElements.define('ce-app', ceApp)
+  s.appendRight(defineComponentNodes.end, `)`);
 
   return generateTransform(s, id)
 }
