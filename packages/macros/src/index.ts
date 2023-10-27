@@ -26,6 +26,9 @@ import VueDefineModels, {
 import VueDefineOptions, {
   type Options as OptionsDefineOptions,
 } from 'unplugin-vue-define-options'
+import VueDefineCustomEl, {
+  type Options as OptionsDefineCustomEl,
+} from '@vue-macros/define-custom-el'
 import VueDefineProp, {
   type Options as OptionsDefineProp,
 } from '@vue-macros/define-prop'
@@ -91,7 +94,8 @@ export interface FeatureOptionsMap {
   chainCall: OptionsChainCall
   defineEmit: OptionsDefineEmit
   defineModels: OptionsDefineModels
-  defineOptions: OptionsDefineOptions
+  defineOptions: OptionsDefineOptions,
+  defineCustomEl: OptionsDefineCustomEl,
   defineProp: OptionsDefineProp
   defineProps: OptionsDefineProps
   definePropsRefs: OptionsDefinePropsRefs
@@ -151,6 +155,7 @@ export function resolveOptions({
   defineEmit,
   defineModels,
   defineOptions,
+  defineCustomEl,
   defineProp,
   defineProps,
   definePropsRefs,
@@ -212,6 +217,11 @@ export function resolveOptions({
       defineOptions,
       { version },
       version < 3.3
+    ),
+    defineCustomEl: resolveSubOptions<'defineCustomEl'>(
+      defineCustomEl,
+      { version },
+      version > 3.2
     ),
     defineProp: resolveSubOptions<'defineProp'>(defineProp, {
       isProduction,
@@ -342,6 +352,7 @@ export default createCombinePlugin<Options | undefined>(
       ),
       resolvePlugin(VueHoistStatic, framework, options.hoistStatic),
       resolvePlugin(VueDefineOptions, framework, options.defineOptions),
+      resolvePlugin(VueDefineCustomEl, framework, options.defineCustomEl),
       resolvePlugin(VueJsxDirective, framework, options.jsxDirective),
 
       ...(framework === 'vite' || framework === 'rollup'
