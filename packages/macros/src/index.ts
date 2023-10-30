@@ -316,7 +316,6 @@ export default createCombinePlugin<Options | undefined>(
       framework,
       options.namedTemplate
     )
-
     const plugins: OptionsPlugin[] = [
       resolvePlugin(VueSetupSFC, framework, options.setupSFC),
       setupComponentPlugins?.[0],
@@ -352,7 +351,6 @@ export default createCombinePlugin<Options | undefined>(
       ),
       resolvePlugin(VueHoistStatic, framework, options.hoistStatic),
       resolvePlugin(VueDefineOptions, framework, options.defineOptions),
-      resolvePlugin(VueDefineCustomEl, framework, options.defineCustomEl),
       resolvePlugin(VueJsxDirective, framework, options.jsxDirective),
 
       ...(framework === 'vite' || framework === 'rollup'
@@ -381,6 +379,7 @@ export default createCombinePlugin<Options | undefined>(
       options.plugins.vue,
       options.plugins.vueJsx,
       resolvePlugin(VueDefineRender, framework, options.defineRender),
+      options.nuxtContext.isClient && resolvePlugin(VueDefineCustomEl, framework, options.defineCustomEl),
       setupComponentPlugins?.[1],
       namedTemplatePlugins?.[1],
       framework === 'vite'

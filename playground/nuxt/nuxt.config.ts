@@ -9,6 +9,7 @@ export default defineNuxtConfig({
 
     defineOptions: true,
     defineSlots: true,
+    defineCustomEl: true,
     hoistStatic: true,
     shortEmits: true,
     shortBind: true,

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import './examples/define-custom-el/index.vue'
 import DefineRender from './examples/define-render/index.vue'
 import DefineOptions from './examples/define-options/index.vue'
 import DefineProps from './examples/define-props/index.vue'
@@ -153,6 +154,11 @@ import Full from './examples/full.setup'
     <fieldset>
       <legend>shortBind</legend>
       <ShortBind />
+    </fieldset>
+
+    <fieldset>
+      <legend>defineCustomEl</legend>
+      <ce-demo />
     </fieldset>
   </div>
 </template>

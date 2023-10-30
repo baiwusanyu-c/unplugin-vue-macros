@@ -9,7 +9,7 @@ import {
   detectVueVersion,
 } from '@vue-macros/common'
 import { generatePluginName } from '#macros' assert { type: 'macro' }
-import { transformDefineCustomEl } from './core'
+import { transformDefineCustomEl, transformDefineCustomOption } from './core'
 
 export type Options = BaseOptions
 export type OptionsResolved = MarkRequired<Options, 'include' | 'version'>
@@ -24,12 +24,23 @@ function resolveOption(options: Options): OptionsResolved {
 }
 const name = generatePluginName()
 
-export default createUnplugin<Options | undefined, false>(
-  (userOptions = {}) => {
-    const options = resolveOption(userOptions)
-    const filter = createFilter(options)
-    return {
-      name,
+export default createUnplugin<Options | undefined, true>((userOptions = {}) => {
+  const options = resolveOption(userOptions)
+  const filter = createFilter(options)
+  return [
+    {
+      name: `${name}:pre`,
+      enforce: 'pre',
+      transformInclude(id) {
+        return filter(id)
+      },
+
+      transform(code, id) {
+        return transformDefineCustomOption(code, id)
+      },
+    },
+    {
+      name: `${name}:post`,
       enforce: 'post',
 
       transformInclude(id) {
@@ -39,6 +50,6 @@ export default createUnplugin<Options | undefined, false>(
       transform(code, id) {
         return transformDefineCustomEl(code, id)
       },
-    }
-  }
-)
+    },
+  ]
+})
